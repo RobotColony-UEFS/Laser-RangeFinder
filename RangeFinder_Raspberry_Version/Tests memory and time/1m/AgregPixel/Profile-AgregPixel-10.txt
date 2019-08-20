@@ -1,0 +1,161 @@
+Filename: AgregPixel.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+     4   50.293 MiB   50.293 MiB   @profile
+     5                             def AjusteImg(img):
+     6                                 #------------------------------ Ajuste de Regiao
+     7   50.293 MiB    0.000 MiB       corteInicial = 240 #240 pixel
+     8   50.293 MiB    0.000 MiB       corteFinal = 340 #340 pixel
+     9                             
+    10   50.445 MiB    0.152 MiB       CorteImg = img[corteInicial:corteFinal, 0:largura].copy() #Intervalo valido 15~100cm
+    11   50.770 MiB    0.324 MiB       CorteImg = cv2.normalize(CorteImg, CorteImg, 0, 255, cv2.NORM_MINMAX) #Normalizacao da escala de cores
+    12   51.070 MiB    0.301 MiB       CorteImg = cv2.GaussianBlur(CorteImg, (1,1), 0) #Desfoque na imagem, remocao de ruidos
+    13   51.070 MiB    0.000 MiB       return CorteImg, corteInicial
+
+
+Filename: AgregPixel.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+    15   51.074 MiB   51.074 MiB   @profile
+    16                             def AgregacaoPixel(CorteImg): # Identificacao e separacao da linha vermelha
+    17   51.473 MiB    0.398 MiB       hsv = cv2.cvtColor(CorteImg, cv2.COLOR_BGR2HSV) # Conversao do espaco de cores, BRG para HSV
+    18                             
+    19   51.473 MiB    0.000 MiB       vermelho1_a = numpy.array([0,100,100]) # Range vermelho escuro
+    20   51.473 MiB    0.000 MiB       vermelho1_b = numpy.array([10,255,255])
+    21                             
+    22   51.473 MiB    0.000 MiB       vermelho2_a = numpy.array([160,200,100]) # Range vermelho claro
+    23   51.473 MiB    0.000 MiB       vermelho2_b = numpy.array([179,255,255])
+    24                             
+    25   51.660 MiB    0.188 MiB       mascaraEscura = cv2.inRange(hsv, vermelho1_a, vermelho1_b) # Mascara vermelho escuro
+    26   51.723 MiB    0.062 MiB       mascaraClara = cv2.inRange(hsv, vermelho2_a, vermelho2_b) # Mascara vermelho claro
+    27   51.840 MiB    0.117 MiB       mascara=mascaraEscura+mascaraClara #Mascara
+    28                             
+    29   51.961 MiB    0.121 MiB       estrutura = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1)) # Elemento estruturante
+    30   52.023 MiB    0.062 MiB       mascaraAberta = cv2.morphologyEx(mascara, cv2.MORPH_OPEN, estrutura) # Operador morfologico
+    31   52.270 MiB    0.246 MiB       res = cv2.bitwise_and(CorteImg, CorteImg, mask=mascaraAberta) # Calculo a conjuncao pixel a pixel
+    32                             
+    33                                 #------------------------------ Thereshold
+    34   52.328 MiB    0.059 MiB       cinza = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    35   52.641 MiB    0.312 MiB       ret, th1 = cv2.threshold(numpy.absolute(cinza), 50, 255, cv2.THRESH_BINARY)
+    36   52.641 MiB    0.000 MiB       return th1
+
+
+Filename: AgregPixel.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+    38   52.641 MiB   52.641 MiB   @profile
+    39                             def FiltroImg(th1):
+    40   52.641 MiB    0.000 MiB       y = []
+    41   52.766 MiB    0.125 MiB       linhas = cv2.HoughLinesP(th1, 1, numpy.pi/2, 20, 30, 15)
+    42   52.766 MiB    0.000 MiB       if linhas is None:
+    43                                     yMax = None
+    44                                 else:
+    45   52.766 MiB    0.000 MiB           for linha in linhas: # Percorrendo o vetor resultante do filtro HoughLinesP
+    46   52.766 MiB    0.000 MiB               for x1,y1,x2,y2 in linha:
+    47   52.766 MiB    0.000 MiB                   y.extend([y1, y2]) # Adicionando coordenadas de altura ao vetor y
+    48   52.766 MiB    0.000 MiB           yMax = max(y)
+    49   52.766 MiB    0.000 MiB       return yMax # Altura maxima
+
+
+Filename: AgregPixel.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+    51   52.766 MiB   52.766 MiB   @profile
+    52                             def Distancia(yMax, rpc, ro, alturaLaser): #------------------------------ Calculo da distancia
+    53   52.766 MiB    0.000 MiB       if(yMax == None):
+    54                                     distancia = 0
+    55                                 else:
+    56   52.766 MiB    0.000 MiB           pfc = abs((yMax+corteInicial)-(altura/2))
+    57   52.766 MiB    0.000 MiB           theta = rpc * pfc + ro
+    58   52.766 MiB    0.000 MiB           distancia = alturaLaser/tan(theta)
+    59   52.766 MiB    0.000 MiB       return distancia
+
+
+Wrote profile results to AgregPixel.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 0.023519 s
+File: AgregPixel.py
+Function: AjusteImg at line 4
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     4                                           @profile
+     5                                           def AjusteImg(img):
+     6                                               #------------------------------ Ajuste de Regiao
+     7         1         42.0     42.0      0.2      corteInicial = 240 #240 pixel
+     8         1         31.0     31.0      0.1      corteFinal = 340 #340 pixel
+     9                                           
+    10         1       1251.0   1251.0      5.3      CorteImg = img[corteInicial:corteFinal, 0:largura].copy() #Intervalo valido 15~100cm
+    11         1      20370.0  20370.0     86.6      CorteImg = cv2.normalize(CorteImg, CorteImg, 0, 255, cv2.NORM_MINMAX) #Normalizacao da escala de cores
+    12         1       1777.0   1777.0      7.6      CorteImg = cv2.GaussianBlur(CorteImg, (1,1), 0) #Desfoque na imagem, remocao de ruidos
+    13         1         48.0     48.0      0.2      return CorteImg, corteInicial
+
+Total time: 0.041547 s
+File: AgregPixel.py
+Function: AgregacaoPixel at line 15
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    15                                           @profile
+    16                                           def AgregacaoPixel(CorteImg): # Identificacao e separacao da linha vermelha
+    17         1      11877.0  11877.0     28.6      hsv = cv2.cvtColor(CorteImg, cv2.COLOR_BGR2HSV) # Conversao do espaco de cores, BRG para HSV
+    18                                           
+    19         1        224.0    224.0      0.5      vermelho1_a = numpy.array([0,100,100]) # Range vermelho escuro
+    20         1        136.0    136.0      0.3      vermelho1_b = numpy.array([10,255,255])
+    21                                           
+    22         1        129.0    129.0      0.3      vermelho2_a = numpy.array([160,200,100]) # Range vermelho claro
+    23         1        128.0    128.0      0.3      vermelho2_b = numpy.array([179,255,255])
+    24                                           
+    25         1       7254.0   7254.0     17.5      mascaraEscura = cv2.inRange(hsv, vermelho1_a, vermelho1_b) # Mascara vermelho escuro
+    26         1       5889.0   5889.0     14.2      mascaraClara = cv2.inRange(hsv, vermelho2_a, vermelho2_b) # Mascara vermelho claro
+    27         1       1795.0   1795.0      4.3      mascara=mascaraEscura+mascaraClara #Mascara
+    28                                           
+    29         1        398.0    398.0      1.0      estrutura = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1)) # Elemento estruturante
+    30         1        808.0    808.0      1.9      mascaraAberta = cv2.morphologyEx(mascara, cv2.MORPH_OPEN, estrutura) # Operador morfologico
+    31         1       5554.0   5554.0     13.4      res = cv2.bitwise_and(CorteImg, CorteImg, mask=mascaraAberta) # Calculo a conjuncao pixel a pixel
+    32                                           
+    33                                               #------------------------------ Thereshold
+    34         1       3542.0   3542.0      8.5      cinza = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    35         1       3765.0   3765.0      9.1      ret, th1 = cv2.threshold(numpy.absolute(cinza), 50, 255, cv2.THRESH_BINARY)
+    36         1         48.0     48.0      0.1      return th1
+
+Total time: 0.004288 s
+File: AgregPixel.py
+Function: FiltroImg at line 38
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    38                                           @profile
+    39                                           def FiltroImg(th1):
+    40         1         35.0     35.0      0.8      y = []
+    41         1       2950.0   2950.0     68.8      linhas = cv2.HoughLinesP(th1, 1, numpy.pi/2, 20, 30, 15)
+    42         1         55.0     55.0      1.3      if linhas is None:
+    43                                                   yMax = None
+    44                                               else:
+    45         4        253.0     63.2      5.9          for linha in linhas: # Percorrendo o vetor resultante do filtro HoughLinesP
+    46         6        694.0    115.7     16.2              for x1,y1,x2,y2 in linha:
+    47         3        197.0     65.7      4.6                  y.extend([y1, y2]) # Adicionando coordenadas de altura ao vetor y
+    48         1         75.0     75.0      1.7          yMax = max(y)
+    49         1         29.0     29.0      0.7      return yMax # Altura maxima
+
+Total time: 0.000294 s
+File: AgregPixel.py
+Function: Distancia at line 51
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    51                                           @profile
+    52                                           def Distancia(yMax, rpc, ro, alturaLaser): #------------------------------ Calculo da distancia
+    53         1         58.0     58.0     19.7      if(yMax == None):
+    54                                                   distancia = 0
+    55                                               else:
+    56         1        111.0    111.0     37.8          pfc = abs((yMax+corteInicial)-(altura/2))
+    57         1         46.0     46.0     15.6          theta = rpc * pfc + ro
+    58         1         54.0     54.0     18.4          distancia = alturaLaser/tan(theta)
+    59         1         25.0     25.0      8.5      return distancia
+

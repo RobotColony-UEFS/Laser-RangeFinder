@@ -1,0 +1,133 @@
+Filename: Sobel.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+     4   50.348 MiB   50.348 MiB   @profile
+     5                             def AjusteImg(img):
+     6                             	#------------------------------ Ajuste de Regiao
+     7   50.348 MiB    0.000 MiB   	corteInicial = 240 #240 pixel
+     8   50.348 MiB    0.000 MiB   	corteFinal = 340 #340 pixel
+     9                             
+    10   50.496 MiB    0.148 MiB   	CorteImg = img[corteInicial:corteFinal, 0:largura].copy() #Intervalo valido 15~100cm
+    11   50.785 MiB    0.289 MiB   	CorteImg = cv2.normalize(CorteImg, CorteImg, 0, 255, cv2.NORM_MINMAX) #Normalizacao da escala de cores
+    12   51.094 MiB    0.309 MiB   	CorteImg = cv2.GaussianBlur(CorteImg, (1,1), 0) #Desfoque na imagem, remocao de ruidos
+    13   51.094 MiB    0.000 MiB   	return CorteImg, corteInicial
+
+
+Filename: Sobel.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+    15   51.094 MiB   51.094 MiB   @profile
+    16                             def GradienteSobel(imgCrop):
+    17   51.453 MiB    0.359 MiB   	cinza = cv2.cvtColor(CorteImg, cv2.COLOR_BGR2GRAY)
+    18   51.848 MiB    0.395 MiB   	gy = cv2.Sobel(cinza, cv2.CV_8U, 0, 1, ksize=3)
+    19                             
+    20                             	#------------------------------ Thereshold
+    21   52.156 MiB    0.309 MiB   	ret, th1 = cv2.threshold(numpy.absolute(gy), 50, 255, cv2.THRESH_BINARY)
+    22   52.156 MiB    0.000 MiB   	return th1
+
+
+Filename: Sobel.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+    24   52.156 MiB   52.156 MiB   @profile
+    25                             def FiltroImg(th1):
+    26   52.156 MiB    0.000 MiB   	y = []
+    27   52.277 MiB    0.121 MiB   	linhas = cv2.HoughLinesP(th1, 1, numpy.pi/2, 20, 30, 15)
+    28   52.277 MiB    0.000 MiB   	if linhas is None:
+    29                             		yMax = None
+    30                             	else:
+    31   52.277 MiB    0.000 MiB   		for linha in linhas: # Percorrendo o vetor resultante do filtro HoughLinesP
+    32   52.277 MiB    0.000 MiB   		    for x1,y1,x2,y2 in linha:
+    33   52.277 MiB    0.000 MiB   		        y.extend([y1, y2]) # Adicionando coordenadas de altura ao vetor y
+    34   52.277 MiB    0.000 MiB   		yMax = max(y)
+    35   52.277 MiB    0.000 MiB   	return yMax # Altura maxima
+
+
+Filename: Sobel.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+    37   52.281 MiB   52.281 MiB   @profile
+    38                             def Distancia(yMax, rpc, ro, alturaLaser): #------------------------------ Calculo da distancia
+    39   52.281 MiB    0.000 MiB   	if(yMax == None):
+    40                             		distancia = 0
+    41                             	else:
+    42   52.281 MiB    0.000 MiB   		pfc = abs((yMax+corteInicial)-(altura/2))
+    43   52.281 MiB    0.000 MiB   		theta = rpc * pfc + ro
+    44   52.281 MiB    0.000 MiB   		distancia = alturaLaser/tan(theta)
+    45   52.281 MiB    0.000 MiB   	return distancia
+
+
+Wrote profile results to Sobel.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 0.024153 s
+File: Sobel.py
+Function: AjusteImg at line 4
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     4                                           @profile
+     5                                           def AjusteImg(img):
+     6                                           	#------------------------------ Ajuste de Regiao
+     7         1         46.0     46.0      0.2  	corteInicial = 240 #240 pixel
+     8         1         30.0     30.0      0.1  	corteFinal = 340 #340 pixel
+     9                                           
+    10         1       1243.0   1243.0      5.1  	CorteImg = img[corteInicial:corteFinal, 0:largura].copy() #Intervalo valido 15~100cm
+    11         1      20412.0  20412.0     84.5  	CorteImg = cv2.normalize(CorteImg, CorteImg, 0, 255, cv2.NORM_MINMAX) #Normalizacao da escala de cores
+    12         1       2374.0   2374.0      9.8  	CorteImg = cv2.GaussianBlur(CorteImg, (1,1), 0) #Desfoque na imagem, remocao de ruidos
+    13         1         48.0     48.0      0.2  	return CorteImg, corteInicial
+
+Total time: 0.016506 s
+File: Sobel.py
+Function: GradienteSobel at line 15
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    15                                           @profile
+    16                                           def GradienteSobel(imgCrop):
+    17         1       3929.0   3929.0     23.8  	cinza = cv2.cvtColor(CorteImg, cv2.COLOR_BGR2GRAY)
+    18         1       8816.0   8816.0     53.4  	gy = cv2.Sobel(cinza, cv2.CV_8U, 0, 1, ksize=3)
+    19                                           
+    20                                           	#------------------------------ Thereshold
+    21         1       3723.0   3723.0     22.6  	ret, th1 = cv2.threshold(numpy.absolute(gy), 50, 255, cv2.THRESH_BINARY)
+    22         1         38.0     38.0      0.2  	return th1
+
+Total time: 0.005596 s
+File: Sobel.py
+Function: FiltroImg at line 24
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    24                                           @profile
+    25                                           def FiltroImg(th1):
+    26         1         38.0     38.0      0.7  	y = []
+    27         1       3192.0   3192.0     57.0  	linhas = cv2.HoughLinesP(th1, 1, numpy.pi/2, 20, 30, 15)
+    28         1         48.0     48.0      0.9  	if linhas is None:
+    29                                           		yMax = None
+    30                                           	else:
+    31         7        463.0     66.1      8.3  		for linha in linhas: # Percorrendo o vetor resultante do filtro HoughLinesP
+    32        12       1365.0    113.8     24.4  		    for x1,y1,x2,y2 in linha:
+    33         6        376.0     62.7      6.7  		        y.extend([y1, y2]) # Adicionando coordenadas de altura ao vetor y
+    34         1         87.0     87.0      1.6  		yMax = max(y)
+    35         1         27.0     27.0      0.5  	return yMax # Altura maxima
+
+Total time: 0.000287 s
+File: Sobel.py
+Function: Distancia at line 37
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    37                                           @profile
+    38                                           def Distancia(yMax, rpc, ro, alturaLaser): #------------------------------ Calculo da distancia
+    39         1         60.0     60.0     20.9  	if(yMax == None):
+    40                                           		distancia = 0
+    41                                           	else:
+    42         1        112.0    112.0     39.0  		pfc = abs((yMax+corteInicial)-(altura/2))
+    43         1         48.0     48.0     16.7  		theta = rpc * pfc + ro
+    44         1         45.0     45.0     15.7  		distancia = alturaLaser/tan(theta)
+    45         1         22.0     22.0      7.7  	return distancia
+
