@@ -1,3 +1,5 @@
 # Laser-RangeFinder
 
-Este trabalho apresenta um sistema de detecção de laser de linha a partir da utilização de técnicas de processamento de imagem, para determinar a distância de obstáculos em um ambiente robótico e analisar o seu desempenho na plataforma computacional Raspberry Pi.
+#### Abstract: Robotic systems are in constant development, proposing automated solutions for everyday tasks. From its first generations, robotic platforms started to perform dynamic movements, in order to have autonomy in the accomplishment of several tasks. In such a context, computer vision applications have provided to robotic platforms, navigation capabilities, and mapping through image processing. The work presented herein highlights the results of the development and performance analyzes of a laser line detection system for distance measure in robotic systems. The system was deployed over the computer platform Raspberry Pi model B+
+
+
