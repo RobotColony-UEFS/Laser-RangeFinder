@@ -29,6 +29,30 @@ def gradient_sobel(cut_img):
 
     return erosion
 
+def pixel_aggregation(cut_img):
+	hsv = cv2.cvtColor(cut_img, cv2.COLOR_BGR2HSV) # Color space conversion, BRG to HSV
+
+	dark_red_a = numpy.array([0, 100, 100])  # Range dark red
+	dark_red_b = numpy.array([10, 255, 255])
+	
+	light_red_a = numpy.array([160, 200, 100])  # Range light red
+	light_red_b = numpy.array([179, 255, 255])
+	
+	mask_dark = cv2.inRange(hsv, dark_red_a, dark_red_b)  # Mask dark red
+	mask_light = cv2.inRange(hsv, light_red_a, light_red_b)  # Mask light red
+
+	mask = mask_dark + mask_light
+
+	structure = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))  # Structuring element
+	open_mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, structure)  # Morphological operator
+	result = cv2.bitwise_and(cut_img, cut_img, mask=open_mask) # I calculate the pixel-by-pixel conjunction
+
+    #------------------------------ Thereshold
+	gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
+	ret, threshold = cv2.threshold(numpy.absolute(gray), 50, 255, cv2.THRESH_BINARY)
+	
+	return threshold
+
 # ------------------------------ HoughLines
 def filter_image(threshold):
     y = []
@@ -68,7 +92,10 @@ def get_distance(y):
 
 def laser_RangeFinder(img):
     cropped_img = cut_image(img)
+    
     result = gradient_sobel(cropped_img)
+    # result = pixel_aggregation(cropped_img)
+    
     y_coordinates = filter_image(result)
     distances = get_distance(y_coordinates)
 
