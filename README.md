@@ -12,9 +12,13 @@ pip3 install math, cv2, numpy
 python3 laser_rangefinder.py
 
 ```
+##### Escolha entre os métodos de detecção do laser de linha:
+```
+Agregação de pixels, utilizar a função: pixel_aggregation('Caminho da imagem')
+Gradiente de Sobel, utilizar a função: gradient_sobel('Caminho da imagem')
+```
 
 ##### Para diferentes distâncias, alterar o caminho da imagem de entrada:
-
 ```
 img = cv2.imread('Caminho da imagem')
 python3 laser_rangefinder.py
