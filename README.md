@@ -1,4 +1,6 @@
-![Screenshot](assets/poster.png)
+Este trabalho apresenta um sistema de detecção de laser de linha a partir da utilização de técnicas de processamento de imagem, para determinar a distância à múltiplos distância obstáculos em um ambiente robótico. Os métodos propostos apresentam taxa de erro de apriximadamente 1,36% e tempo de resposta de 153 ms, quando executados na plataforma computacional Raspberry Pi.
+
+Artigo disponível [aqui](https://revistas.unifacs.br/index.php/rsc/article/view/6643)
 
 #### Execução do projeto:
 
